@@ -16,7 +16,6 @@ faiss-cpu = "^1.7.4"
 tiktoken = "^0.4.0"
 gradio = "^3.39.0"
 
-
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.25.0"
 black = "^23.7.0"
