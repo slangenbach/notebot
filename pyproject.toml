@@ -25,6 +25,7 @@ nbqa = "^1.7.0"
 nbconvert = "^7.7.3"
 
 [tool.ruff]
+select = ["E", "F", "I"]
 line-length = 100
 
 [tool.black]
