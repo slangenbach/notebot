@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "notebot"
+version = "0.1.0"
+description = "Let's have a chat about your notes"
+authors = ["Stefan Langenbach <stefan@langenbach.online>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langchain = "^0.0.249"
+openai = "^0.27.8"
+gitpython = "^3.1.32"
+python-dotenv = "^1.0.0"
+faiss-cpu = "^1.7.4"
+tiktoken = "^0.4.0"
+gradio = "^3.39.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.25.0"
+black = "^23.7.0"
+ruff = "^0.0.282"
+nbqa = "^1.7.0"
+nbconvert = "^7.7.3"
+
+[tool.ruff]
+line-length = 100
+
+[tool.black]
+line-length = 100
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
