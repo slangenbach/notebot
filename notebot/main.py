@@ -1,7 +1,6 @@
 """Main entry point for NoteBot."""
 
 import argparse
-from typing import Final
 
 import gradio as gr
 from dotenv import load_dotenv
@@ -14,10 +13,6 @@ from langchain.text_splitter import MarkdownTextSplitter
 from langchain.vectorstores import FAISS
 
 from notebot.constants import DB_PATH, NOTE_REPO_URL, NOTES_PATH
-
-load_dotenv()
-
-EMBEDDINGS: Final = OpenAIEmbeddings()  # pyright: ignore
 
 
 class NoteBot:
@@ -48,12 +43,13 @@ def filter_notes(file_path: str) -> bool:
     return file_path.endswith(".md") and not file_path.endswith("README.md")
 
 
-def load_and_ingest_notes(note_repo_url: str) -> None:
+def load_and_ingest_notes(note_repo_url: str, embedding) -> None:
     """
     Load markdown notes from Git repo and ingest them into vector store.
 
     Args:
         note_repo_url (str): URL of Git repo to load notes from
+        embeddings: Embeddings to use for vector store
     """
     loader = GitLoader(
         repo_path=str(NOTES_PATH),
@@ -62,7 +58,7 @@ def load_and_ingest_notes(note_repo_url: str) -> None:
     )
     splitter = MarkdownTextSplitter()
     docs = loader.load_and_split(text_splitter=splitter)
-    db = FAISS.from_documents(documents=docs, embedding=EMBEDDINGS)
+    db = FAISS.from_documents(documents=docs, embedding=embedding)
     db.save_local(folder_path=str(DB_PATH))
 
 
@@ -85,24 +81,9 @@ def get_chain(db):
     return chain
 
 
-def main(args):
-    """
-    Launch NoteBot.
-
-    Args:
-        args (_type_): CLI arguments
-    """
-    load_dotenv()
-
-    if not NOTES_PATH.exists() and not DB_PATH.exists():
-        load_and_ingest_notes(note_repo_url=args.note_repo_url)
-
-    db = FAISS.load_local(folder_path=str(DB_PATH), embeddings=EMBEDDINGS)
-    chain = get_chain(db=db)
-    notebot = NoteBot(chain=chain)
-
-    ui = gr.ChatInterface(
-        fn=notebot.chat,
+def get_ui(chat_function) -> gr.ChatInterface:
+    return gr.ChatInterface(
+        fn=chat_function,
         title="NoteBot",
         examples=[
             "List the title of all notes I can ask you about",
@@ -111,14 +92,43 @@ def main(args):
         ],
         cache_examples=True,
     )
-    ui.launch()
 
 
-if __name__ == "__main__":
+def get_parser() -> argparse.ArgumentParser:
+    """
+    Get argument parser for CLI options.
+
+    Returns:
+        argparse.ArgumentParser: Parser
+    """
     parser = argparse.ArgumentParser(description="Welcome to NoteBot")
     parser.add_argument(
         "--note-repo-url", help="URL of Git repo to load notes from", default=NOTE_REPO_URL
     )
+    parser.add_argument("--llm", help="LLM used by NoteBot", choices=["GPT"], default="GPT")
+
+    return parser
+
+
+def main():
+    """Launch NoteBot."""
+    parser = get_parser()
     args = parser.parse_args()
 
-    main(args)
+    load_dotenv()
+
+    embedding = OpenAIEmbeddings()  # pyright: ignore[reportGeneralTypeIssues]
+
+    if not NOTES_PATH.exists() and not DB_PATH.exists():
+        load_and_ingest_notes(note_repo_url=args.note_repo_url, embedding=embedding)
+
+    db = FAISS.load_local(folder_path=str(DB_PATH), embeddings=embedding)
+    chain = get_chain(db=db)
+    notebot = NoteBot(chain=chain)
+
+    ui = get_ui(chat_function=notebot.chat)
+    ui.launch()
+
+
+if __name__ == "__main__":
+    main()

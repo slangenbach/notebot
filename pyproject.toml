@@ -22,6 +22,7 @@ black = "^23.7.0"
 ruff = "^0.0.282"
 nbqa = "^1.7.0"
 nbconvert = "^7.7.3"
+huggingface-hub = "^0.16.4"
 
 [tool.ruff]
 select = ["E", "F", "I"]
