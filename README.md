@@ -11,9 +11,9 @@ Please note that it is early days for NoteBot - you may experience rough edges.
 
 Install NoteBot
 
-    poetry install
+    pip install -r requirements.txt
 
-Create a `.env` file in the root of the repo and insert your OpenAI API KEY
+_Optional_: Create a `.env` file in the root of the repo and insert your OpenAI API KEY
 
     OPENAI_API_KEY="sk-..."
 
@@ -21,12 +21,31 @@ Create a `.env` file in the root of the repo and insert your OpenAI API KEY
 
 Launch NoteBot
 
-    python notebot/main.py
+    python notebot/app.py
 
 Launch Notebot with custom notes repository
 
-    python notebot/main.py --note-repo-url https://github.com/YOUR_USER/YOUR_REPO.git
+    python notebot/app.py --note-repo-url https://github.com/YOUR_USER/YOUR_REPO.git
+
+Launch NoteBot with custom OpenAI API key
+
+    python notebot/app.py --openai-api-key YOUR_API_KEY
 
 Get help
 
-    python notebot/main.py -h
+    python notebot/app.py -h
+
+## Development
+
+Install poetry as described in the official [documentation][1]
+
+Install project dependencies
+
+    poetry install
+
+Install pre-commit hooks
+
+    pre-commit install
+
+
+[1]: https://python-poetry.org/docs/#installation

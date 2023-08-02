@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "notebot"
-version = "0.1.0"
+version = "0.1.1"
 description = "Let's have a chat about your notes"
 authors = ["Stefan Langenbach <stefan@langenbach.online>"]
 license = "MIT"
