@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../hf-notebot"
+		}
+	],
+	"settings": {
+		"python.languageServer": "Pylance",
+		"python.formatting.provider": "black",
+		"black-formatter.importStrategy": "fromEnvironment"
+	}
+}

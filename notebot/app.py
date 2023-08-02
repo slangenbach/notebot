@@ -1,6 +1,8 @@
 """Main entry point for NoteBot."""
 
 import argparse
+import os
+from typing import Callable
 
 import gradio as gr
 from dotenv import load_dotenv
@@ -81,8 +83,17 @@ def get_chain(db):
     return chain
 
 
-def get_ui(chat_function) -> gr.ChatInterface:
-    return gr.ChatInterface(
+def get_ui(chat_function: Callable) -> gr.ChatInterface:
+    """
+    Create NoteBot user interface
+
+    Args:
+        chat_function (Callable): Function to chat with NoteBot
+
+    Returns:
+        gr.ChatInterface: User Interface
+    """
+    ui = gr.ChatInterface(
         fn=chat_function,
         title="NoteBot",
         examples=[
@@ -90,8 +101,10 @@ def get_ui(chat_function) -> gr.ChatInterface:
             "Generate a brief summary of my LangChain notes",
             "Do I have some notes related to COBOL?",
         ],
-        cache_examples=True,
+        cache_examples=False,
     )
+
+    return ui
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -106,29 +119,53 @@ def get_parser() -> argparse.ArgumentParser:
         "--note-repo-url", help="URL of Git repo to load notes from", default=NOTE_REPO_URL
     )
     parser.add_argument("--llm", help="LLM used by NoteBot", choices=["GPT"], default="GPT")
+    parser.add_argument("--openai-api-key", help="API key to interact with OpenAI models")
 
     return parser
 
 
-def main():
-    """Launch NoteBot."""
-    parser = get_parser()
-    args = parser.parse_args()
+def set_openai_api_key(key: str | None) -> None:
+    """
+    Set OpenAI API key enviroment variable if it has not been set already.
 
-    load_dotenv()
+    Args:
+        key (str | None): OpenAI API key
+    """
+    if not os.environ.get("OPENAI_API_KEY"):
+        if key:
+            os.environ["OPENAI_API_KEY"] = key
+        else:
+            load_dotenv()
+
+
+def app(run_local: bool = True):
+    """
+    Launch NoteBot app.
+
+    Args:
+        run_local (bool, optional): Whether to launch Notebook locally. Defaults to True.
+    """
+    if run_local:
+        parser = get_parser()
+        args = parser.parse_args()
+        repo_url = args.note_repo_url
+        set_openai_api_key(args.openai_api_key)
+    else:
+        repo_url = NOTE_REPO_URL
+        set_openai_api_key(key=None)
 
     embedding = OpenAIEmbeddings()  # pyright: ignore[reportGeneralTypeIssues]
 
     if not NOTES_PATH.exists() and not DB_PATH.exists():
-        load_and_ingest_notes(note_repo_url=args.note_repo_url, embedding=embedding)
+        load_and_ingest_notes(note_repo_url=repo_url, embedding=embedding)
 
     db = FAISS.load_local(folder_path=str(DB_PATH), embeddings=embedding)
     chain = get_chain(db=db)
     notebot = NoteBot(chain=chain)
-
     ui = get_ui(chat_function=notebot.chat)
+
     ui.launch()
 
 
 if __name__ == "__main__":
-    main()
+    app()

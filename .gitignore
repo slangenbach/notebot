@@ -160,6 +160,7 @@ cython_debug/
 #.idea/
 
 # User defined
+.ruff_cache/
 .vscode/
 data/
 gradio_cached_examples/
