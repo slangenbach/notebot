@@ -2,6 +2,8 @@
 
 Let's have a chat about your notes!
 
+Check out the hosted app on [HuggingFace spaces][1]
+
 ## About
 
 NoteBot is a simple, LLM-powered chatbot with whom you can converse about your (my) notes.  
@@ -37,7 +39,7 @@ Get help
 
 ## Development
 
-Install poetry as described in the official [documentation][1]
+Install poetry as described in the official [documentation][2]
 
 Install project dependencies
 
@@ -48,4 +50,5 @@ Install pre-commit hooks
     pre-commit install
 
 
-[1]: https://python-poetry.org/docs/#installation
+[1]: https://huggingface.co/spaces/slangenbach/notebot
+[2]: https://python-poetry.org/docs/#installation
